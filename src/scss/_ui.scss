@@ -1,28 +1,116 @@
 .form {
   padding: 20px;
-  border: 1px solid #999;
+  border: 1px solid $grey-light;
   max-width: 400px;
   width: 100%;
+  &.no-border {
+    border: none !important;
+  }
   .form-heading {
     text-align: center;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 20px;
   }
   .input-group {
     display: flex;
     flex-direction: column;
     margin: 10px 0;
+    label {
+      font-weight: 700;
+      font-size: 14px;
+    }
     .input {
-      padding: 5px 10px;
+      padding: 7.5px 10px;
+      font-size: 16px;
     }
   }
   .button-actions {
     text-align: center;
+    .loading-icon {
+      width: 30px;
+      height: 30px;
+    }
   }
   .error {
     font-size: 12px;
-    color: red;
+    color: $red;
     text-align: center;
     margin-top: 10px;
+  }
+
+  .footer {
+    text-align: right;
+    &-link {
+      font-size: 12px;
+      color: $slate;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+  // dark variant
+  &-dark {
+    color: $slate;
+    background: $off-black;
+    box-shadow: $shadow;
+
+    .input {
+      background: $slate-dark;
+      border: none;
+      color: $off-white;
+    }
+  }
+}
+
+.link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+// buttons
+.btn {
+  border-radius: 0;
+  transition: all 0.2s;
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.btn-red {
+  background: $red;
+  color: $off-white;
+}
+
+.btn-gold {
+  background: $gold;
+  color: $slate-dark;
+}
+
+// heading
+.heading-3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+// add-icon
+.add-icon {
+  border: 1px solid;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 150rem;
+  cursor: pointer;
+  color: $gold;
+
+  &:hover {
+    opacity: 0.8;
   }
 }

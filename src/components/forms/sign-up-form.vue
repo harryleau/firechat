@@ -1,8 +1,8 @@
 <template>
-  <div class="form" id="sign-up-form">
+  <div class="form form-dark no-border" id="sign-up-form">
     <h3 class="form-heading">Create a new account</h3>
     <div class="input-group">
-      <label for="username">Username</label>
+      <label for="username">Display Name</label>
       <input type="text" v-model="username" class="input" id="username" />
     </div>
     <div class="input-group">
@@ -18,16 +18,19 @@
       <input type="password" v-model="passwordConfirmed" class="input" id="passwordConfirmed" />
     </div>
     <div class="button-actions">
-      <button class="btn btn-primary" type="button" @click="onSubmit">Submit</button>
+      <img class="loading-icon" v-if="isLoading" src="@/assets/loading.gif" alt="" />
+      <button class="btn btn-red" v-if="!isLoading" type="button" @click="onSubmit">Sign up</button>
     </div>
     <div v-if="error" class="error">
       {{ error }}
+    </div>
+    <div class="footer">
+      <span class="footer-link link" @click="$emit('open-sign-in')">Sign in to your account</span>
     </div>
   </div>
 </template>
 
 <script>
-import db from '@/firestore/db'
 import validator from 'email-validator'
 export default {
   name: 'sign-up-form',
@@ -67,14 +70,13 @@ export default {
         return
       }
 
-      this.isLoading = true
-
       // after validation
       const _this = this
+      this.isLoading = true
       // callback after function
       const cb = errorMessage => {
-        _this.isLoading = false
         _this.error = errorMessage
+        _this.isLoading = false
       }
       const data = {
         username: this.username,

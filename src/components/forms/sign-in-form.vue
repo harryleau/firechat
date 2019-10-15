@@ -1,8 +1,8 @@
 <template>
-  <div class="form" id="sign-in-form">
+  <div class="form form-dark no-border" id="sign-in-form">
     <h3 class="form-heading">Sign in to your account</h3>
     <div class="input-group">
-      <label for="email">email</label>
+      <label for="email">Email</label>
       <input type="text" v-model="email" class="input" id="email" />
     </div>
     <div class="input-group">
@@ -10,9 +10,13 @@
       <input type="password" v-model="password" class="input" id="password" />
     </div>
     <div class="button-actions">
-      <button class="btn btn-primary" type="button" @click="onSignIn">Sign in</button>
+      <img class="loading-icon" v-if="isLoading" src="@/assets/loading.gif" alt="" />
+      <button class="btn btn-red" v-if="!isLoading" type="button" @click="onSignIn">Sign in</button>
     </div>
     <div class="error" v-if="error">{{ error }}</div>
+    <div class="footer">
+      <span class="footer-link link" @click="$emit('open-sign-up')">Create a new account</span>
+    </div>
   </div>
 </template>
 
@@ -31,6 +35,7 @@ export default {
   computed: {},
   methods: {
     onSignIn() {
+      this.isLoading = true
       // check all fields filled
       if (!this.email || !this.password) {
         this.error = 'Please fill in all fields!'
@@ -42,8 +47,6 @@ export default {
         this.error = 'Email is not valid!'
         return
       }
-
-      this.isLoading = true
 
       // after validation
       const _this = this

@@ -6,7 +6,7 @@ import router from './router'
 import store from './store/index.js'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import { getAuthUser } from './firestore/db'
+import auth from './firestore/services/auth.js'
 
 Vue.config.productionTip = false
 
@@ -14,16 +14,26 @@ Vue.config.productionTip = false
 Vue.use(firestorePlugin)
 Vue.use(BootstrapVue)
 
-const successfulCb = user => {
+const successfulCb = (user, profile) => {
   store.commit('loggedInUser', user)
-  router.push('/')
+  store.commit('profile', profile)
+  store.dispatch('GET_USERS', () => {
+    store.dispatch('GET_FRIENDS', () => {
+      store.dispatch('GET_ROOMS', () => {
+        store.commit('finishLoading', true)
+        const redirect = window.location.pathname === '/sign-in' ? '/' : window.location.pathname
+        router.push(redirect, () => {})
+      })
+    })
+  })
 }
 
 const failedCb = () => {
-  router.push('/sign-in')
+  store.commit('finishLoading', true)
+  router.push('/sign-in', () => {})
 }
 
-getAuthUser(successfulCb, failedCb)
+auth.getAuthUser(successfulCb, failedCb)
 
 new Vue({
   router,

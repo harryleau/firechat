@@ -15,7 +15,7 @@ module.exports = {
       },
       sass: {
         data: `
-          @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700&display=swap');
+          @import url('https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700&display=swap');
           @import "@/scss/main.scss";
           `
       }
