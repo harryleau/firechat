@@ -5,16 +5,13 @@
         <div class="sidebar">
           <div class="profile">
             <div class="profile-info">
-              <!-- <img class="avatar" src="@/assets/avatar.png" alt="" /> -->
-              <img class="avatar" src="https://firechat-harryle.appspot.com/images/avatar.jpg" alt="" />
+              <img v-b-modal.modal-change-avatar class="avatar" v-if="avatar" :src="avatar" alt="" />
+              <img v-b-modal.modal-change-avatar class="avatar" v-else src="@/assets/avatar.png" alt="" />
               <div class="details">
                 <span class="name">{{ profile.username }}</span>
                 <span class="email">{{ profile.email }}</span>
               </div>
             </div>
-            <button @click="signout" class="btn btn-red">Sign out</button>
-            <input type="file" multiple enctype="multipart/form-data" @change="selectImage" />
-            <button @click="upload" class="btn btn-info">Upload</button>
           </div>
           <friend-list id="friend-list" :friends="friends" />
           <room-list
@@ -25,12 +22,29 @@
             :rooms="rooms"
           />
           <user-list id="user-list" :users="filteredUsers" />
+          <div class="footer">
+            <button @click="signout" class="btn btn-red">Sign out</button>
+          </div>
         </div>
         <div class="main">
           <chat-room v-if="activeRoom" :roomId="activeRoom.id" />
         </div>
       </div>
     </div>
+    <b-modal id="modal-change-avatar" title="Change your avatar" hide-footer>
+      <img class="avatar" v-if="previewAvatar" :src="previewAvatar" alt="" />
+      <img class="avatar" v-else src="@/assets/avatar.png" alt="" />
+      <input
+        id="file-select"
+        type="file"
+        multiple
+        enctype="multipart/form-data"
+        title="Change avatar"
+        @change="selectImage"
+      />
+      <img class="loading-icon" v-if="isLoading" src="@/assets/loading.gif" alt="" />
+      <button @click="upload" v-if="!isLoading" class="btn btn-gold">Upload</button>
+    </b-modal>
   </div>
 </template>
 
@@ -38,16 +52,17 @@
 import FriendList from '@/components/friends/friend-list'
 import UserList from '@/components/users/user-list'
 import RoomList from '@/components/rooms/room-list'
-import CreateRoom from '@/components/rooms/create-room'
 import ChatRoom from '@/components/chat-room/chat-room'
-import firebase, { storage } from 'firebase'
+import firebase from 'firebase'
+import { db } from '@/firestore/db'
 export default {
   name: 'home',
-  components: { FriendList, UserList, RoomList, CreateRoom, ChatRoom },
+  components: { FriendList, UserList, RoomList, ChatRoom },
   data() {
     return {
       activeRoom: null,
-      file: null
+      file: null,
+      isLoading: false
     }
   },
   computed: {
@@ -81,6 +96,18 @@ export default {
     },
     filteredUsers() {
       return this.users.filter(user => !this.friends.find(f => f.id === user.id) && user.id !== this.loggedInUser.uid)
+    },
+    previewAvatar() {
+      if (this.file) {
+        return URL.createObjectURL(this.file)
+      }
+      if (this.profile.avatar) {
+        return this.profile.avatar
+      }
+      return null
+    },
+    avatar() {
+      return this.profile.avatar
     }
   },
   methods: {
@@ -92,15 +119,33 @@ export default {
     },
     selectImage(e) {
       this.file = e.target.files[0]
+      // this.previewAvatar = URL.createObjectURL(e.target.files[0])
     },
     upload() {
+      this.isLoading = true
+      const filename = `images/image-${Date.now()}.jpg`
       const storageRef = firebase.storage().ref()
 
-      const imageRef = storageRef.child('images/avatar.jpg')
+      const imageRef = storageRef.child(filename)
 
+      const _this = this
       imageRef.put(this.file).then(snapshot => {
-        console.log(snapshot)
+        snapshot.ref.getDownloadURL().then(url => {
+          db.collection('users')
+            .doc(this.loggedInUser.uid)
+            .update({ avatar: url })
+            .then(() => {
+              _this.isLoading = true
+              _this.$bvModal.hide('modal-change-avatar')
+            })
+        })
       })
+
+      // const image = firebase
+      //   .storage()
+      //   .ref()
+      //   .child('images/avatar.jpg')
+      // image.getDownloadURL().then(url => console.log(url))
     }
   }
 }
@@ -117,11 +162,14 @@ export default {
       min-height: 100vh;
       background: $off-black;
       width: 250px;
-      padding: 40px 10px;
+      padding: 20px 10px;
       .profile {
+        position: relative;
         .profile-info {
           .avatar {
             width: 60px;
+            height: 60px;
+            cursor: pointer;
           }
           .details {
             .name {
@@ -144,13 +192,52 @@ export default {
       #room-list {
         margin-bottom: 30px;
       }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+      }
     }
 
     .main {
-      width: calc(100% - 200px);
       flex-grow: 1;
       background: radial-gradient($grey-light, $slate);
-      // background: $grey-light;
+      position: fixed;
+      height: 100vh;
+
+      @media only screen and (min-width: 768px) {
+        width: calc(720px - 265px);
+        left: calc((100% - 720px) / 2 + 265px);
+      }
+      @media only screen and (min-width: 992px) {
+        width: calc(960px - 265px);
+        left: calc((100% - 960px) / 2 + 265px);
+      }
+      @media only screen and (min-width: 1200px) {
+        width: calc(1140px - 265px);
+        left: calc((100% - 1140px) / 2 + 265px);
+      }
+    }
+  }
+}
+</style>
+
+<style lang="scss">
+#modal-change-avatar {
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .avatar {
+      width: 200px;
+      height: 200px;
+      border-radius: 150rem;
+      object-fit: cover;
+      object-position: center center;
+      margin-bottom: 20px;
+    }
+    #file-select {
+      margin-bottom: 20px;
     }
   }
 }

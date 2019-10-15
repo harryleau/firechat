@@ -31,6 +31,7 @@ export default {
   },
   methods: {
     deleteRoom(room) {
+      this.$emit('select-room', null)
       this.$store.dispatch('DELETE_ROOM', { room, cb: () => {} })
     }
   }

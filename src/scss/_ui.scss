@@ -114,3 +114,27 @@
     opacity: 0.8;
   }
 }
+
+// modal
+.modal {
+  .modal-content {
+    background: none;
+  }
+  .modal-header {
+    background: $slate-dark;
+    color: $gold;
+    font-size: 20px;
+    .close {
+      text-shadow: none;
+      color: $off-white;
+    }
+  }
+  .modal-body {
+    background: $grey-light;
+  }
+}
+
+.loading-icon {
+  width: 30px;
+  height: auto;
+}

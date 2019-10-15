@@ -1,7 +1,8 @@
 <template>
   <div class="friend-list-item">
     <div class="profile-info">
-      <img class="avatar" src="@/assets/avatar.png" alt="" />
+      <img class="avatar" v-if="!avatar" src="@/assets/avatar.png" alt="" />
+      <img class="avatar" v-else :src="avatar" alt="" />
       <div class="details">
         <span class="name">{{ friend.username }}</span>
       </div>
@@ -22,7 +23,11 @@ export default {
   data() {
     return {}
   },
-  computed: {},
+  computed: {
+    avatar() {
+      return this.friend.avatar
+    }
+  },
   methods: {
     unFriend() {
       this.$store.dispatch('UNFRIEND', this.friend)

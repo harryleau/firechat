@@ -32,7 +32,6 @@
 </template>
 
 <script>
-import { fs_createRoom } from '@/firestore/services/chat-room'
 export default {
   name: 'create-room',
   data() {
@@ -85,6 +84,8 @@ export default {
       const cb = room => {
         _this.$emit('create-room', room)
         _this.$bvModal.hide('modal-create-room')
+        _this.name = null
+        _this.participants = []
       }
       this.$store.dispatch('CREATE_ROOM', { name: this.name, users, cb })
     }
@@ -94,21 +95,6 @@ export default {
 
 <style lang="scss">
 #modal-create-room {
-  .modal-content {
-    background: none;
-  }
-  .modal-header {
-    background: $slate-dark;
-    color: $gold;
-    font-size: 20px;
-    .close {
-      text-shadow: none;
-      color: $off-white;
-    }
-  }
-  .modal-body {
-    background: $grey-light;
-  }
   .form {
     padding: 0;
     max-width: 100%;

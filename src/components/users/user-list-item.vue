@@ -1,7 +1,8 @@
 <template>
   <div class="user-list-item">
     <div class="profile-info">
-      <img class="avatar" src="@/assets/avatar.png" alt="" />
+      <img class="avatar" v-if="!avatar" src="@/assets/avatar.png" alt="" />
+      <img class="avatar" v-else :src="avatar" alt="" />
       <div class="details">
         <span class="name">{{ user.username }}</span>
         <span class="email">{{ user.email }}</span>
@@ -23,7 +24,11 @@ export default {
   data() {
     return {}
   },
-  computed: {},
+  computed: {
+    avatar() {
+      return this.user.avatar
+    }
+  },
   methods: {
     addFriend() {
       this.$store.dispatch('ADD_FRIEND', this.user)

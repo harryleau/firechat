@@ -1,24 +1,23 @@
 <template>
   <div id="chat-room">
-    <!-- <div v-if="room && users.length > 0">
-      <div class="" v-for="user in room.users" :key="user.id">{{ getUser(user.id).username }}</div>
-    </div> -->
     <div class="messages">
       <div
         class="no-message-text"
         v-if="room && users.length > 0 && (!room.messages || (room.messages && room.messages.length === 0))"
       >
-        This is chat room <span class="room-name">#{{ room.name }}</span> of you -
+        This is chat room <span class="room-name">#{{ room.name }}</span> of
         <span class="name" v-for="user in room.users" :key="user.id">{{ getUser(user.id).username }}, </span> let's
         start your conversation.
       </div>
       <div class="wrapper" v-if="room && room.messages && users.length > 0">
         <div v-for="(message, i) in room.messages" :key="i" class="message">
           <div class="profile-info">
-            <img class="avatar" src="@/assets/avatar.png" alt="" />
+            <img class="avatar" v-if="!getUser(message.user).avatar" src="@/assets/avatar.png" alt="" />
+            <img class="avatar" v-else :src="getUser(message.user).avatar" alt="" />
             <div class="details">
               <div class="top">
-                <span class="name">{{ getUser(message.user).username }}</span>
+                <span class="name">{{ getUser(message.user).username }} </span>
+                <span class="type">{{ generateRole(message.user) }}</span>
                 <span class="time">{{ generateTime(message.createdTime) }}</span>
               </div>
               <p class="text">{{ message.text }}</p>
@@ -69,6 +68,11 @@ export default {
         return moment(timeStamp).format('DD MMM HH:mm')
       }
     },
+    generateRole(id) {
+      const type = this.room.users.find(u => u.id === id).type
+      if (type === 'creator') return 'Host'
+      else return 'Guest'
+    },
     sendMessage() {
       const createdTime = Date.now()
       const text = this.text
@@ -79,12 +83,6 @@ export default {
         text,
         user
       }
-
-      const _this = this
-      const cb = () => {
-        this.text = null
-      }
-
       fs_sendMessage(this.room.id, data).then(() => (this.text = null))
     },
     deleteMessage(message) {
@@ -139,6 +137,7 @@ export default {
         align-items: flex-start;
         .avatar {
           width: 45px;
+          height: 45px;
         }
         .details {
           color: #000;
@@ -150,9 +149,13 @@ export default {
             font-weight: 700;
             font-size: 16px;
           }
+          .type {
+            color: $gold;
+            margin-left: 5px;
+          }
           .time {
             font-size: 12px;
-            margin-left: 5px;
+            margin-left: 10px;
             color: $grey-dark;
             font-weight: 300;
           }

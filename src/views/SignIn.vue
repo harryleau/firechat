@@ -42,7 +42,7 @@ export default {
       font-size: 40px;
       font-weight: 600;
       margin-bottom: 50px;
-      margin-top: 100px;
+      margin-top: 60px;
       color: $red;
     }
   }

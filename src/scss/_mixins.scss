@@ -16,9 +16,11 @@
   }
   .avatar {
     width: 30px;
-    height: auto;
-    background-color: #fff;
+    height: 30px;
+    // background-color: #fff;
     border-radius: 150rem;
     margin-right: 10px;
+    object-position: center center;
+    object-fit: cover;
   }
 }
