@@ -20,9 +20,13 @@ const successfulCb = (user, profile) => {
   store.dispatch('GET_USERS', () => {
     store.dispatch('GET_FRIENDS', () => {
       store.dispatch('GET_ROOMS', () => {
-        store.commit('finishLoading', true)
-        const redirect = window.location.pathname === '/sign-in' ? '/' : window.location.pathname
-        router.push(redirect, () => {})
+        store.dispatch('GET_FRIEND_REQUESTS', () => {
+          store.dispatch('GET_SENT_REQUESTS', () => {
+            store.commit('finishLoading', true)
+            const redirect = window.location.pathname === '/sign-in' ? '/' : window.location.pathname
+            router.push(redirect, () => {})
+          })
+        })
       })
     })
   })

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <div class="loading-icon" v-if="!finishLoading">
-      <img src="@/assets/loading.gif" alt="" />
+    <div class="loading" v-if="!finishLoading">
+      <img class="loading-icon" src="@/assets/loading.gif" alt="" />
     </div>
     <router-view v-if="finishLoading" />
   </div>
@@ -26,7 +26,7 @@ export default {
   background: radial-gradient($slate-dark, #000);
   min-height: 100vh;
 
-  .loading-icon {
+  .loading {
     min-height: 100vh;
     width: 100%;
     display: flex;

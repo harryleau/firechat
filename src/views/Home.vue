@@ -13,6 +13,7 @@
               </div>
             </div>
           </div>
+          <friend-request-list id="friend-request-list" class="mt-3" :users="friendRequests" />
           <friend-list id="friend-list" :friends="friends" />
           <room-list
             @create-room="activeRoom = $event"
@@ -50,6 +51,7 @@
 
 <script>
 import FriendList from '@/components/friends/friend-list'
+import FriendRequestList from '@/components/friend-requests/friend-request-list'
 import UserList from '@/components/users/user-list'
 import RoomList from '@/components/rooms/room-list'
 import ChatRoom from '@/components/chat-room/chat-room'
@@ -57,7 +59,7 @@ import firebase from 'firebase'
 import { db } from '@/firestore/db'
 export default {
   name: 'home',
-  components: { FriendList, UserList, RoomList, ChatRoom },
+  components: { FriendList, UserList, RoomList, ChatRoom, FriendRequestList },
   data() {
     return {
       activeRoom: null,
@@ -91,11 +93,23 @@ export default {
     rooms() {
       return this.$store.getters.rooms
     },
+    friendRequests() {
+      return this.$store.getters.friendRequests
+    },
+    sentRequests() {
+      return this.$store.getters.sentRequests
+    },
     filteredRooms() {
       return this.rooms.filter(room => room.users.find(user => user.id === this.loggedInUser.uid))
     },
     filteredUsers() {
-      return this.users.filter(user => !this.friends.find(f => f.id === user.id) && user.id !== this.loggedInUser.uid)
+      return this.users.filter(user => {
+        const isLoggedInUser = user.id === this.loggedInUser.uid
+        const isFriend = this.friends.find(f => f.id === user.id)
+        const hasRequest = this.friendRequests.find(f => f.id === user.id)
+        // const hasSentRequest = this.sentRequests.find(r => r.id === user.id)
+        return !isLoggedInUser && !isFriend && !hasRequest
+      })
     },
     previewAvatar() {
       if (this.file) {
@@ -140,12 +154,6 @@ export default {
             })
         })
       })
-
-      // const image = firebase
-      //   .storage()
-      //   .ref()
-      //   .child('images/avatar.jpg')
-      // image.getDownloadURL().then(url => console.log(url))
     }
   }
 }

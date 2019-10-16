@@ -1,5 +1,5 @@
 <template>
-  <div class="room-list-item" :class="{ active: isActive }">
+  <div class="room-list-item" :class="{ active: isActive, highlighted: hasNewMessage }">
     <span class="name" @click="$emit('select-room', room)"># {{ room.name }}</span>
     <span @click="deleteRoom(room)" v-if="allowDelete" class="link">delete</span>
   </div>
@@ -12,7 +12,9 @@ export default {
     activeRoom: Object
   },
   data() {
-    return {}
+    return {
+      hasNewMessage: false
+    }
   },
   computed: {
     loggedInUser() {
@@ -33,6 +35,25 @@ export default {
     deleteRoom(room) {
       this.$emit('select-room', null)
       this.$store.dispatch('DELETE_ROOM', { room, cb: () => {} })
+    }
+  },
+  watch: {
+    'room.messages': {
+      immediate: true,
+      handler(newVal, oldVal) {
+        if (newVal && oldVal) {
+          if (newVal.length !== oldVal && !this.isActive) {
+            this.hasNewMessage = true
+          } else {
+            this.hasNewMessage = false
+          }
+        }
+      }
+    },
+    isActive(newVal, oldVal) {
+      if (newVal !== oldVal && newVal === true) {
+        this.hasNewMessage = false
+      }
     }
   }
 }
@@ -62,6 +83,14 @@ export default {
       color: $gold;
       font-weight: 700;
       text-decoration: underline;
+    }
+  }
+
+  &.highlighted {
+    .name {
+      color: $green-blue;
+      // color: $gold;
+      font-weight: 700;
     }
   }
 }

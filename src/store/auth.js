@@ -1,5 +1,11 @@
 import auth from '@/firestore/services/auth.js'
-import { fs_getAllUsers, fs_addFriend, fs_unFriend } from '@/firestore/services/user.js'
+import {
+  fs_getAllUsers,
+  fs_addFriend,
+  fs_unFriend,
+  fs_requestFriend,
+  fs_removeFriendRequest
+} from '@/firestore/services/user.js'
 import { fs_getRooms, fs_createRoom, fs_deleteRoom } from '@/firestore/services/chat-room.js'
 
 export default {
@@ -7,6 +13,8 @@ export default {
     loggedInUser: null,
     profile: null,
     friends: [],
+    friendRequests: [],
+    sentRequests: [],
     users: [],
     rooms: [],
     finishLoading: false,
@@ -16,6 +24,8 @@ export default {
     loggedInUser: state => state.loggedInUser,
     profile: state => state.profile,
     friends: state => state.friends,
+    friendRequests: state => state.friendRequests,
+    sentRequests: state => state.sentRequests,
     users: state => state.users,
     rooms: state => state.rooms,
     finishLoading: state => state.finishLoading,
@@ -51,6 +61,32 @@ export default {
       commit('friends', friends)
       cb()
     },
+    GET_FRIEND_REQUESTS({ commit, state }, cb) {
+      let requests = []
+      if (state.profile.friendRequests) {
+        state.profile.friendRequests.forEach(r => {
+          const request = state.users.find(user => user.id === r)
+          if (request !== null) {
+            requests.push(request)
+          }
+        })
+      }
+      commit('friendRequests', requests)
+      cb()
+    },
+    GET_SENT_REQUESTS({ commit, state }, cb) {
+      let requests = []
+      if (state.profile.sentRequests) {
+        state.profile.sentRequests.forEach(r => {
+          const request = state.users.find(user => user.id === r)
+          if (request !== null) {
+            requests.push(request)
+          }
+        })
+      }
+      commit('sentRequests', requests)
+      cb()
+    },
     GET_ROOMS({ commit, state }, cb) {
       fs_getRooms(querySnapshot => {
         const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
@@ -59,13 +95,23 @@ export default {
         cb()
       })
     },
-    ADD_FRIEND({ state }, friend) {
-      fs_addFriend(state.loggedInUser.uid, friend.id).catch(e => {
+    REQUEST_FRIEND({ state }, { user, cb }) {
+      fs_requestFriend(user.id, state.loggedInUser.uid, cb).catch(e => {
         console.log(e)
       })
     },
-    UNFRIEND({ state }, friend) {
-      fs_unFriend(state.loggedInUser.uid, friend.id).catch(e => {
+    REMOVE_REQUEST({ state }, { user, cb }) {
+      fs_removeFriendRequest(state.loggedInUser.uid, user.id, cb).catch(e => {
+        console.log(e)
+      })
+    },
+    ADD_FRIEND({ state }, { user, cb }) {
+      fs_addFriend(state.loggedInUser.uid, user.id, cb).catch(e => {
+        console.log(e)
+      })
+    },
+    UNFRIEND({ state }, { friend, cb }) {
+      fs_unFriend(state.loggedInUser.uid, friend.id, cb).catch(e => {
         console.log(e)
       })
     },
@@ -98,6 +144,12 @@ export default {
     },
     friends: (state, value) => {
       state.friends = value
+    },
+    friendRequests: (state, value) => {
+      state.friendRequests = value
+    },
+    sentRequests: (state, value) => {
+      state.sentRequests = value
     },
     users: (state, value) => {
       state.users = value

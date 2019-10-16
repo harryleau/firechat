@@ -7,7 +7,8 @@
         <span class="name">{{ friend.username }}</span>
       </div>
     </div>
-    <span @click="unFriend" class="link">unfriend</span>
+    <span v-if="!isLoading" @click="unFriend" class="link">unfriend</span>
+    <span v-else><img class="loading-icon" src="@/assets/loading.gif" alt=""/></span>
   </div>
 </template>
 
@@ -21,7 +22,9 @@ export default {
     }
   },
   data() {
-    return {}
+    return {
+      isLoading: false
+    }
   },
   computed: {
     avatar() {
@@ -30,7 +33,12 @@ export default {
   },
   methods: {
     unFriend() {
-      this.$store.dispatch('UNFRIEND', this.friend)
+      const _this = this
+      const cb = () => {
+        _this.isLoading = false
+      }
+      this.isLoading = true
+      this.$store.dispatch('UNFRIEND', { friend: this.friend, cb })
     }
   }
 }
@@ -45,6 +53,10 @@ export default {
 
   .link {
     font-size: 14px;
+  }
+
+  .loading-icon {
+    width: 16px;
   }
 }
 </style>

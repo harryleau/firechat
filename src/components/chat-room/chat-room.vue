@@ -151,6 +151,7 @@ export default {
           }
           .type {
             color: $gold;
+            font-weight: 700;
             margin-left: 5px;
           }
           .time {
